@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Arctic Region App
+  arctic-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
+    container_name: arctic-region-app
+    networks:
+      - arctic-network
+
+  # Development version (optional)
+  arctic-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+    container_name: arctic-region-dev
+    profiles:
+      - dev
+    networks:
+      - arctic-network
+
+networks:
+  arctic-network:
+    driver: bridge 
