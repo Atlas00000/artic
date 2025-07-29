@@ -1,13 +1,12 @@
 {
-  "name": "arctic-region-3d-explorer",
+  "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start",
-    "postinstall": "npm run build"
+    "start": "next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -68,10 +67,6 @@
     "three": "latest",
     "vaul": "^0.9.6",
     "zod": "^3.24.1"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
   },
   "devDependencies": {
     "@types/node": "^22",

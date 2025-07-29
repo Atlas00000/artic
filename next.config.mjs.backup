@@ -28,12 +28,9 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
-  // Railway optimization
+  // Docker optimization
   output: 'standalone',
   poweredByHeader: false,
 }
 
 export default nextConfig
-  // Railway specific
-  compress: true,
-  generateEtags: false,
