@@ -19,6 +19,10 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
           },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
         ],
       },
     ]
@@ -28,9 +32,13 @@ const nextConfig = {
   experimental: {
     appDir: true,
   },
-  // Docker optimization
-  output: 'standalone',
+  // Optimize for different platforms
+  output: process.env.VERCEL ? 'standalone' : 'export',
   poweredByHeader: false,
+  // Asset optimization
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  // Disable telemetry
+  telemetry: false,
 }
 
 export default nextConfig
