@@ -91,6 +91,23 @@ export const preloadCriticalAssets = async (): Promise<void> => {
   )
 }
 
+// Asset health check function
+export const checkAssetHealth = async (): Promise<Record<string, boolean>> => {
+  const results: Record<string, boolean> = {}
+  
+  for (const [key, asset] of Object.entries(ASSETS)) {
+    try {
+      const url = getAssetPath(key as keyof typeof ASSETS)
+      const response = await fetch(url, { method: 'HEAD' })
+      results[key] = response.ok
+    } catch (error) {
+      results[key] = false
+    }
+  }
+  
+  return results
+}
+
 // Asset size information
 export const getAssetInfo = (assetKey: keyof typeof ASSETS) => {
   if (assetKey in CDN_ASSETS) {

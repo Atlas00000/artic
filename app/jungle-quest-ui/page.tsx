@@ -148,9 +148,13 @@ export default function JungleQuestUI() {
         obj.id === selectedObject.id 
           ? { ...obj, [property]: axis !== undefined && ['position', 'rotation', 'scale'].includes(property)
               ? (() => {
-                  const newValue = [...obj[property as keyof SceneObject]] as [number, number, number]
-                  newValue[axis] = value
-                  return newValue
+                  const currentValue = obj[property as keyof SceneObject]
+                  if (Array.isArray(currentValue) && currentValue.length === 3) {
+                    const newValue = [...currentValue] as [number, number, number]
+                    newValue[axis] = value
+                    return newValue
+                  }
+                  return value
                 })()
               : value
             }
@@ -325,15 +329,8 @@ export default function JungleQuestUI() {
         </aside>
 
         {/* 3D Viewport */}
-        <SceneViewport
-          sceneObjects={sceneObjects}
-          selectedObjectId={selectedObjectId}
-          onObjectSelect={selectObject}
-          directionalLight={directionalLight}
-          pointLight={pointLight}
-          environmentPreset={environmentPreset}
-          showSidebar={showSidebar}
-          orbitControlsRef={getCameraRef()}
+        <SceneViewport 
+          className="w-full h-full"
         />
 
         {/* Floating Data Panel */}

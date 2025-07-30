@@ -36,8 +36,6 @@ const nextConfig = {
   // Ensure proper routing
   trailingSlash: false,
   experimental: { 
-    appDir: true,
-    optimizeCss: true,
     optimizePackageImports: ['@react-three/fiber', '@react-three/drei', 'three']
   },
   
@@ -64,14 +62,6 @@ const nextConfig = {
         filename: 'static/assets/[name].[hash][ext]'
       }
     })
-    
-    // Optimize Three.js bundle
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        'three': require.resolve('three')
-      }
-    }
     
     return config
   },

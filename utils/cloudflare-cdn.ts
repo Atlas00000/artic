@@ -9,8 +9,7 @@ export interface CloudflareAsset {
 export interface CDNConfig {
   accountId: string
   apiToken: string
-  zoneId: string
-  customDomain?: string
+  r2Url: string
 }
 
 // Cloudflare R2 Storage Configuration
@@ -18,19 +17,17 @@ export const CLOUDFLARE_CONFIG = {
   // Replace with your Cloudflare account details
   accountId: process.env.CLOUDFLARE_ACCOUNT_ID || '',
   apiToken: process.env.CLOUDFLARE_API_TOKEN || '',
-  zoneId: process.env.CLOUDFLARE_ZONE_ID || '',
-  customDomain: process.env.CLOUDFLARE_CUSTOM_DOMAIN || '',
+  r2Url: process.env.CLOUDFLARE_R2_URL || '',
   
   // R2 Bucket Configuration
   bucketName: 'arctic-assets',
-  bucketUrl: process.env.CLOUDFLARE_R2_URL || '',
   
   // CDN Configuration
-  cdnDomain: process.env.CLOUDFLARE_CDN_DOMAIN || '',
+  cdnDomain: process.env.CLOUDFLARE_CDN_DOMAIN || process.env.CLOUDFLARE_R2_URL || '',
   cacheTTL: 31536000, // 1 year in seconds
 }
 
-// Asset mapping for Cloudflare CDN
+// Asset mapping for Cloudflare R2
 export const CDN_ASSETS = {
   arcticTerrain: {
     localPath: '/assets/arctic_terrain1.glb',
@@ -64,7 +61,7 @@ export const getCDNAssetUrl = (assetKey: keyof typeof CDN_ASSETS): string => {
     return asset.localPath
   }
   
-  // In production, prefer CDN with fallback
+  // In production, prefer R2 CDN with fallback
   if (CLOUDFLARE_CONFIG.cdnDomain) {
     return asset.cdnPath
   }

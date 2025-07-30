@@ -3,11 +3,12 @@ import { CLOUDFLARE_CONFIG } from '@/utils/cloudflare-cdn'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const path = params.path.join('/')
-    const cdnUrl = `${CLOUDFLARE_CONFIG.cdnDomain}/${path}`
+    const { path } = await params
+    const pathString = path.join('/')
+    const cdnUrl = `${CLOUDFLARE_CONFIG.cdnDomain}/${pathString}`
     
     // Fetch from Cloudflare CDN
     const response = await fetch(cdnUrl, {
@@ -42,7 +43,7 @@ export async function GET(
       }
     }
     
-    const contentType = getContentType(path)
+    const contentType = getContentType(pathString)
     
     // Return the asset with proper headers
     return new NextResponse(assetData, {
@@ -66,11 +67,12 @@ export async function GET(
 
 export async function HEAD(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const path = params.path.join('/')
-    const cdnUrl = `${CLOUDFLARE_CONFIG.cdnDomain}/${path}`
+    const { path } = await params
+    const pathString = path.join('/')
+    const cdnUrl = `${CLOUDFLARE_CONFIG.cdnDomain}/${pathString}`
     
     // Fetch headers from Cloudflare CDN
     const response = await fetch(cdnUrl, { method: 'HEAD' })
