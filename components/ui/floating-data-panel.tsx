@@ -55,7 +55,10 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
   const [showUI, setShowUI] = useState(true)
 
   // Sound system integration
-  const { playBearSound } = useSoundSystem()
+  const { 
+    playBearSound, 
+    enable 
+  } = useSoundSystem();
 
   // Auto-rotate facts with enhanced timing
   useEffect(() => {
@@ -69,29 +72,30 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
   }, [animal.funFacts.length])
 
   const toggleSound = useCallback(() => {
-    setSoundEnabled(prev => !prev)
-    // Play bear sound when toggling
-    playBearSound()
-  }, [playBearSound])
+    enable(); // Initialize audio on first user interaction
+    playBearSound();
+  }, [enable, playBearSound])
 
   const toggleStats = useCallback(() => {
-    setShowStats(prev => !prev)
-    // Play bear sound when toggling stats
-    playBearSound()
-  }, [playBearSound])
+    enable(); // Initialize audio on first user interaction
+    playBearSound();
+    setShowStats(prev => !prev);
+  }, [enable, playBearSound])
 
   const toggleUI = useCallback(() => {
-    setShowUI(!showUI)
-    // Play bear sound when toggling UI
-    playBearSound()
-  }, [showUI, playBearSound])
+    enable(); // Initialize audio on first user interaction
+    playBearSound();
+    setShowUI(prev => !prev);
+  }, [enable, playBearSound])
 
   // Handle panel hover with sound
   const handlePanelHover = useCallback((panel: string) => {
-    setHoveredPanel(panel)
-    // Play subtle bear sound on hover
-    playBearSound()
-  }, [playBearSound])
+    setHoveredPanel(panel);
+    if (isVisible) {
+      enable(); // Initialize audio on first user interaction
+      playBearSound();
+    }
+  }, [isVisible, enable, playBearSound]);
 
   if (!isVisible) return null
 

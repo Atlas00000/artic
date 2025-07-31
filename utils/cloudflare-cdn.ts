@@ -49,6 +49,35 @@ export const CDN_ASSETS = {
     fallbackPath: '/assets/snowenvrion_1k.hdr',
     size: '3.2MB',
     type: 'environment'
+  },
+  // Audio assets
+  bearGrowl: {
+    localPath: '/assets/audio/bear_growl.mp3',
+    cdnPath: `${CLOUDFLARE_CONFIG.cdnDomain}/audio/bear_growl.mp3`,
+    fallbackPath: '/assets/audio/bear_growl.mp3',
+    size: '256KB',
+    type: 'audio'
+  },
+  bearRoar: {
+    localPath: '/assets/audio/bear_roar.mp3',
+    cdnPath: `${CLOUDFLARE_CONFIG.cdnDomain}/audio/bear_roar.mp3`,
+    fallbackPath: '/assets/audio/bear_roar.mp3',
+    size: '512KB',
+    type: 'audio'
+  },
+  ambientWind: {
+    localPath: '/assets/audio/ambient_wind.mp3',
+    cdnPath: `${CLOUDFLARE_CONFIG.cdnDomain}/audio/ambient_wind.mp3`,
+    fallbackPath: '/assets/audio/ambient_wind.mp3',
+    size: '1.2MB',
+    type: 'audio'
+  },
+  arcticAmbience: {
+    localPath: '/assets/audio/arctic_ambience.mp3',
+    cdnPath: `${CLOUDFLARE_CONFIG.cdnDomain}/audio/arctic_ambience.mp3`,
+    fallbackPath: '/assets/audio/arctic_ambience.mp3',
+    size: '2.1MB',
+    type: 'audio'
   }
 }
 
@@ -103,7 +132,15 @@ export const loadAssetWithRetry = async (
 
 // Preload critical assets
 export const preloadAssets = async (): Promise<void> => {
-  const criticalAssets: (keyof typeof CDN_ASSETS)[] = ['arcticTerrain', 'polarBear', 'snowEnvironment']
+  const criticalAssets: (keyof typeof CDN_ASSETS)[] = [
+    'arcticTerrain', 
+    'polarBear', 
+    'snowEnvironment',
+    'bearGrowl',
+    'bearRoar',
+    'ambientWind',
+    'arcticAmbience'
+  ]
   
   await Promise.allSettled(
     criticalAssets.map(assetKey => loadAssetWithRetry(assetKey))

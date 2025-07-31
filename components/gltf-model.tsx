@@ -40,6 +40,7 @@ export const GLTFModel = forwardRef<any, GLTFModelProps>(({
   // Apply shadow properties to all meshes and setup animations
   React.useEffect(() => {
     if (scene) {
+      try {
       scene.traverse((child: any) => {
         if (child.isMesh) {
           child.castShadow = true
@@ -47,27 +48,41 @@ export const GLTFModel = forwardRef<any, GLTFModelProps>(({
         }
       })
 
-      // Setup animations if available
-      if (animations && animations.length > 0) {
-        const mixer = new (require('three').AnimationMixer)(scene)
-        mixerRef.current = mixer
-        animationsRef.current = animations
+        // Setup animations if available
+        if (animations && animations.length > 0) {
+          // Import Three.js dynamically to avoid multiple instances warning
+          import('three').then(({ AnimationMixer }) => {
+            const mixer = new AnimationMixer(scene)
+            mixerRef.current = mixer
+            animationsRef.current = animations
 
-        // Play all animations
-        animations.forEach((clip) => {
-          const action = mixer.clipAction(clip)
-          action.play()
-        })
+            // Play all animations
+            animations.forEach((clip) => {
+              const action = mixer.clipAction(clip)
+              action.play()
+            })
+          }).catch(error => {
+            console.warn('Failed to load Three.js AnimationMixer:', error)
+          })
+        }
+
+        setIsLoading(false)
+      } catch (error) {
+        console.error('Error setting up GLTF model:', error)
+        setHasError(true)
+        setIsLoading(false)
       }
-
-      setIsLoading(false)
     }
   }, [scene, animations])
 
   // Update animations on each frame
   useFrame((state, delta) => {
     if (mixerRef.current) {
-      mixerRef.current.update(delta)
+      try {
+        mixerRef.current.update(delta)
+      } catch (error) {
+        console.warn('Error updating animation mixer:', error)
+      }
     }
   })
 

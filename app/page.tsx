@@ -56,21 +56,37 @@ export default function ArcticLife() {
     toggleSound()
   }
 
+  // Predefined snowflake positions to avoid hydration mismatch
+  const snowflakePositions = [
+    { left: "10%", top: "20%", delay: "0s", duration: "3s" },
+    { left: "25%", top: "45%", delay: "0.5s", duration: "4s" },
+    { left: "40%", top: "15%", delay: "1s", duration: "3.5s" },
+    { left: "55%", top: "70%", delay: "1.5s", duration: "4.2s" },
+    { left: "70%", top: "30%", delay: "2s", duration: "3.8s" },
+    { left: "85%", top: "60%", delay: "2.5s", duration: "4.5s" },
+    { left: "15%", top: "80%", delay: "3s", duration: "3.2s" },
+    { left: "30%", top: "10%", delay: "3.5s", duration: "4.8s" },
+    { left: "45%", top: "55%", delay: "4s", duration: "3.7s" },
+    { left: "60%", top: "25%", delay: "4.5s", duration: "4.1s" },
+    { left: "75%", top: "75%", delay: "5s", duration: "3.9s" },
+    { left: "90%", top: "40%", delay: "5.5s", duration: "4.3s" }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-cyan-800 to-blue-700 arctic-gradient snow-pattern">
       {/* Arctic-themed Header */}
       <header className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-r from-blue-900/95 via-cyan-800/95 to-blue-700/95 backdrop-blur-md border-b-2 border-cyan-400/40 shadow-2xl">
         {/* Animated Snowflakes Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(12)].map((_, i) => (
+          {snowflakePositions.map((pos, i) => (
             <div
               key={`snow-${i}`}
               className="absolute text-cyan-300/30 animate-float"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${i * 0.5}s`,
-                animationDuration: `${3 + Math.random() * 2}s`,
+                left: pos.left,
+                top: pos.top,
+                animationDelay: pos.delay,
+                animationDuration: pos.duration,
               }}
             >
               ❄
@@ -106,10 +122,10 @@ export default function ArcticLife() {
                 <MapPin className="h-4 w-4 text-blue-300" />
                 <span className="text-blue-200 text-sm font-medium">Arctic Region</span>
               </div>
+              </div>
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
+            
+            <div className="flex items-center space-x-3">
             {/* Asset Health Indicator */}
             {process.env.NODE_ENV === 'development' && (
               <div className="hidden md:flex items-center space-x-2 bg-green-500/20 rounded-full px-4 py-2 border border-green-400/30">
@@ -133,9 +149,9 @@ export default function ArcticLife() {
             </div>
 
             {/* Enhanced Sound Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
+              <Button
+                variant="ghost"
+                size="icon"
               onClick={handleSoundToggle}
               className={`arctic-button text-white transition-all duration-300 hover:scale-110 ${
                 isSoundEnabled 
@@ -143,41 +159,41 @@ export default function ArcticLife() {
                   : 'hover:bg-red-600/50'
               }`}
               aria-label={isSoundEnabled ? "Disable Sound" : "Enable Sound"}
-            >
+              >
               {isSoundEnabled ? (
                 <Volume2 className="h-5 w-5 text-cyan-300" />
               ) : (
                 <VolumeX className="h-5 w-5 text-red-300" />
               )}
-            </Button>
-            
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === 'day' ? 'night' : 'day')}
+              </Button>
+              
+              {/* Theme Toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === 'day' ? 'night' : 'day')}
               className="arctic-button text-white hover:bg-cyan-600/50 transition-all duration-300 hover:scale-110"
-              aria-label={theme === 'day' ? "Switch to Night Mode" : "Switch to Day Mode"}
-            >
-              {theme === 'day' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-            </Button>
-            
+                aria-label={theme === 'day' ? "Switch to Night Mode" : "Switch to Day Mode"}
+              >
+                {theme === 'day' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              </Button>
+              
             {/* Weather Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
+              <Button
+                variant="ghost"
+                size="icon"
               className="arctic-button text-white hover:bg-cyan-600/50 transition-all duration-300 hover:scale-110"
               aria-label="Toggle Weather Effects"
-            >
+              >
               <CloudSnow className="h-5 w-5" />
-            </Button>
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* Main 3D Scene */}
       <div className="relative w-full h-screen pt-20">
-        <SceneViewport 
+        <SceneViewport
           className="w-full h-full"
           onSceneReady={handleSceneReady}
         />
