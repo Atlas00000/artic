@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Image optimization
-  images: { 
+  images: {
     unoptimized: true,
     domains: [
       'imagedelivery.net', // Cloudflare Images

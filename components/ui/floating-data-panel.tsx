@@ -1,47 +1,31 @@
 "use client"
 
 import React, { useState, useEffect, useCallback } from "react"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { 
-  MapPin, 
-  Utensils, 
-  Shield, 
-  Info, 
-  Snowflake,
-  PawPrint,
-  Heart,
-  AlertTriangle,
-  Droplets,
-  Thermometer,
-  Zap,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Star,
-  Eye,
-  Target,
-  Wind,
-  Waves,
-  EyeOff
+  MapPin, Utensils, Shield, Info, Snowflake, PawPrint, Heart, AlertTriangle, 
+  Droplets, Thermometer, Zap, Play, Pause, Volume2, VolumeX, Star, Eye, Target, Wind, Waves, EyeOff
 } from "lucide-react"
+import { useSoundSystem } from "@/hooks/useSoundSystem"
+
+interface Animal {
+  name: string
+  scientificName: string
+  habitat: string
+  diet: string[]
+  conservationStatus: "Least Concern" | "Near Threatened" | "Vulnerable" | "Endangered" | "Critically Endangered"
+  funFacts: string[]
+  stats: {
+    weight: string
+    height: string
+    lifespan: string
+    speed: string
+  }
+  image?: string
+}
 
 interface FloatingDataPanelProps {
-  animal: {
-    name: string
-    scientificName: string
-    habitat: string
-    diet: string[]
-    conservationStatus: "Least Concern" | "Near Threatened" | "Vulnerable" | "Endangered" | "Critically Endangered"
-    funFacts: string[]
-    stats?: {
-      weight: string
-      height: string
-      lifespan: string
-      speed: string
-    }
-  }
+  animal: Animal
 }
 
 const conservationStatusColors = {
@@ -70,35 +54,44 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
   const [pulseEffect, setPulseEffect] = useState(false)
   const [showUI, setShowUI] = useState(true)
 
+  // Sound system integration
+  const { playBearSound } = useSoundSystem()
+
   // Auto-rotate facts with enhanced timing
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentFactIndex((prev) => (prev + 1) % animal.funFacts.length)
+      setCurrentFactIndex(prev => (prev + 1) % animal.funFacts.length)
       setPulseEffect(true)
-      setTimeout(() => setPulseEffect(false), 300)
-    }, 4000) // Change fact every 4 seconds
+      setTimeout(() => setPulseEffect(false), 500)
+    }, 8000) // Increased to 8 seconds for better readability
 
     return () => clearInterval(interval)
   }, [animal.funFacts.length])
 
-  // Sound toggle handler
   const toggleSound = useCallback(() => {
-    setSoundEnabled(!soundEnabled)
-    if (!soundEnabled) {
-      // TODO: Play ambient arctic sound
-      console.log("Playing arctic ambient sound")
-    }
-  }, [soundEnabled])
+    setSoundEnabled(prev => !prev)
+    // Play bear sound when toggling
+    playBearSound()
+  }, [playBearSound])
 
-  // Stats toggle handler
   const toggleStats = useCallback(() => {
-    setShowStats(!showStats)
-  }, [showStats])
+    setShowStats(prev => !prev)
+    // Play bear sound when toggling stats
+    playBearSound()
+  }, [playBearSound])
 
-  // UI toggle handler
   const toggleUI = useCallback(() => {
     setShowUI(!showUI)
-  }, [showUI])
+    // Play bear sound when toggling UI
+    playBearSound()
+  }, [showUI, playBearSound])
+
+  // Handle panel hover with sound
+  const handlePanelHover = useCallback((panel: string) => {
+    setHoveredPanel(panel)
+    // Play subtle bear sound on hover
+    playBearSound()
+  }, [playBearSound])
 
   if (!isVisible) return null
 
@@ -125,7 +118,7 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
           className={`bg-white/10 backdrop-blur-md rounded-2xl p-2 md:p-4 border border-white/20 shadow-2xl transition-all duration-500 max-w-[85vw] md:max-w-none pointer-events-auto ${
             hoveredPanel === 'top' ? 'bg-white/20 scale-105' : ''
           }`}
-          onMouseEnter={() => setHoveredPanel('top')}
+          onMouseEnter={() => handlePanelHover('top')}
           onMouseLeave={() => setHoveredPanel(null)}
         >
           <div className="flex items-center space-x-4">
@@ -139,18 +132,16 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
               </h1>
               <p className="text-xs md:text-sm text-blue-200 italic">{animal.scientificName}</p>
             </div>
-            <Badge 
-              className={`${conservationStatusColors[animal.conservationStatus]} backdrop-blur-sm border-2 font-bold text-sm px-3 py-1 transition-all duration-300 hover:scale-110`}
-            >
+            <div className={`inline-flex items-center rounded-full focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-primary/80 ${conservationStatusColors[animal.conservationStatus]} backdrop-blur-sm border-2 font-bold text-sm px-3 py-1 transition-all duration-300 hover:scale-110`}>
               <div className="flex items-center space-x-1">
                 {conservationStatusIcons[animal.conservationStatus]}
                 <span>{animal.conservationStatus}</span>
               </div>
-            </Badge>
+            </div>
             <div className="flex space-x-2">
               <Button
-                size="sm"
                 variant="ghost"
+                size="sm"
                 onClick={toggleSound}
                 className="bg-white/20 hover:bg-white/30 text-white border border-white/30"
               >
@@ -169,47 +160,33 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
           className={`bg-white/10 backdrop-blur-md rounded-2xl p-3 md:p-4 border border-white/20 shadow-2xl max-w-[140px] md:max-w-xs transition-all duration-500 pointer-events-auto ${
             hoveredPanel === 'left' ? 'bg-white/20 scale-105' : ''
           }`}
-          onMouseEnter={() => setHoveredPanel('left')}
+          onMouseEnter={() => handlePanelHover('left')}
           onMouseLeave={() => setHoveredPanel(null)}
         >
-          <div className="space-y-4">
-            {/* Habitat */}
-            <div className="bg-blue-500/20 rounded-xl p-3 border border-blue-300/30 hover:bg-blue-500/30 transition-all duration-300">
-              <div className="flex items-center space-x-2 mb-2">
-                <MapPin className="h-4 w-4 text-blue-300 animate-bounce" />
-                <h3 className="font-bold text-blue-200 text-sm">Habitat</h3>
-              </div>
-              <p className="text-blue-100 text-xs leading-relaxed">{animal.habitat}</p>
-              <div className="flex items-center mt-2 space-x-1">
-                <Wind className="h-3 w-3 text-blue-300" />
-                <span className="text-blue-200 text-xs">Arctic Winds</span>
-              </div>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <MapPin className="h-4 w-4 text-blue-400" />
+              <span className="text-xs md:text-sm font-semibold text-white">Habitat</span>
             </div>
-
-            {/* Stats - Conditional Display */}
-            {animal.stats && showStats && (
-              <div className="bg-green-500/20 rounded-xl p-3 border border-green-300/30 hover:bg-green-500/30 transition-all duration-300">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Zap className="h-4 w-4 text-green-300 animate-pulse" />
-                  <h3 className="font-bold text-green-200 text-sm">Quick Stats</h3>
+            <p className="text-xs text-blue-200 leading-relaxed">{animal.habitat}</p>
+            
+            {showStats && (
+              <div className="space-y-2 pt-2 border-t border-white/20">
+                <div className="flex items-center space-x-2">
+                  <Thermometer className="h-3 w-3 text-cyan-400" />
+                  <span className="text-xs text-cyan-200">Weight: {animal.stats.weight}</span>
                 </div>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between items-center bg-green-500/10 rounded p-1">
-                    <span className="text-green-100">Weight:</span>
-                    <span className="text-green-200 font-semibold">{animal.stats.weight}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-green-500/10 rounded p-1">
-                    <span className="text-green-100">Height:</span>
-                    <span className="text-green-200 font-semibold">{animal.stats.height}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-green-500/10 rounded p-1">
-                    <span className="text-green-100">Speed:</span>
-                    <span className="text-green-200 font-semibold">{animal.stats.speed}</span>
-                  </div>
-                  <div className="flex justify-between items-center bg-green-500/10 rounded p-1">
-                    <span className="text-green-100">Lifespan:</span>
-                    <span className="text-green-200 font-semibold">{animal.stats.lifespan}</span>
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <Target className="h-3 w-3 text-cyan-400" />
+                  <span className="text-xs text-cyan-200">Height: {animal.stats.height}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Heart className="h-3 w-3 text-cyan-400" />
+                  <span className="text-xs text-cyan-200">Lifespan: {animal.stats.lifespan}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Zap className="h-3 w-3 text-cyan-400" />
+                  <span className="text-xs text-cyan-200">Speed: {animal.stats.speed}</span>
                 </div>
               </div>
             )}
@@ -225,68 +202,39 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
           className={`bg-white/10 backdrop-blur-md rounded-2xl p-3 md:p-4 border border-white/20 shadow-2xl max-w-[140px] md:max-w-xs transition-all duration-500 pointer-events-auto ${
             hoveredPanel === 'right' ? 'bg-white/20 scale-105' : ''
           }`}
-          onMouseEnter={() => setHoveredPanel('right')}
+          onMouseEnter={() => handlePanelHover('right')}
           onMouseLeave={() => setHoveredPanel(null)}
         >
-          <div className="space-y-4">
-            {/* Diet */}
-            <div className="bg-yellow-500/20 rounded-xl p-3 border border-yellow-300/30 hover:bg-yellow-500/30 transition-all duration-300">
-              <div className="flex items-center space-x-2 mb-2">
-                <Utensils className="h-4 w-4 text-yellow-300 animate-pulse" />
-                <h3 className="font-bold text-yellow-200 text-sm">Diet</h3>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {animal.diet.slice(0, 4).map((food, index) => (
-                  <Badge 
-                    key={index}
-                    className="bg-yellow-500/30 text-yellow-200 border border-yellow-300/50 text-xs hover:bg-yellow-500/50 transition-all duration-200 hover:scale-105"
-                  >
-                    {food}
-                  </Badge>
-                ))}
-              </div>
-              <div className="flex items-center mt-2 space-x-1">
-                <Target className="h-3 w-3 text-yellow-300" />
-                <span className="text-yellow-200 text-xs">Primary: Seals</span>
-              </div>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Utensils className="h-4 w-4 text-green-400" />
+              <span className="text-xs md:text-sm font-semibold text-white">Diet</span>
             </div>
-
-            {/* Fun Facts */}
-            <div className={`bg-purple-500/20 rounded-xl p-3 border border-purple-300/30 hover:bg-purple-500/30 transition-all duration-300 ${
-              pulseEffect ? 'animate-pulse' : ''
-            }`}>
+            <div className="space-y-1">
+              {animal.diet.map((food, index) => (
+                <div key={index} className="flex items-center space-x-1">
+                  <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                  <span className="text-xs text-green-200">{food}</span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="pt-2 border-t border-white/20">
               <div className="flex items-center space-x-2 mb-2">
-                <Info className="h-4 w-4 text-purple-300 animate-bounce" />
-                <h3 className="font-bold text-purple-200 text-sm">Fun Fact #{currentFactIndex + 1}</h3>
+                <Info className="h-4 w-4 text-yellow-400" />
+                <span className="text-xs md:text-sm font-semibold text-white">Fun Fact</span>
               </div>
-              <p className="text-purple-100 text-xs italic leading-relaxed">
-                "{animal.funFacts[currentFactIndex]}"
+              <p className={`text-xs text-yellow-200 leading-relaxed transition-all duration-300 ${
+                pulseEffect ? 'scale-105' : ''
+              }`}>
+                {animal.funFacts[currentFactIndex]}
               </p>
-              <div className="flex justify-center space-x-1 mt-2">
-                {animal.funFacts.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentFactIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 hover:scale-125 ${
-                      index === currentFactIndex 
-                        ? 'bg-purple-400 scale-125' 
-                        : 'bg-purple-300/50'
-                    }`}
-                    aria-label={`Go to fact ${index + 1}`}
-                    title={`Fact ${index + 1}`}
-                  />
-                ))}
-              </div>
-              <div className="flex items-center justify-center mt-2">
-                <Star className="h-3 w-3 text-purple-300 animate-pulse" />
-                <span className="text-purple-200 text-xs ml-1">Click dots to explore!</span>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Panel - Conservation Info */}
+      {/* Bottom Panel - Conservation Info (Desktop) */}
       <div className={`absolute bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-500 hidden md:block ${
         showUI ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       }`}>
@@ -294,31 +242,25 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
           className={`bg-white/10 backdrop-blur-md rounded-2xl p-3 md:p-4 border border-white/20 shadow-2xl transition-all duration-500 pointer-events-auto ${
             hoveredPanel === 'bottom' ? 'bg-white/20 scale-105' : ''
           }`}
-          onMouseEnter={() => setHoveredPanel('bottom')}
+          onMouseEnter={() => handlePanelHover('bottom')}
           onMouseLeave={() => setHoveredPanel(null)}
         >
-          <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+          <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <Shield className="h-4 w-4 md:h-5 md:w-5 text-orange-300 animate-pulse" />
-              <span className="text-orange-200 text-xs md:text-sm font-semibold">Conservation Status:</span>
+              <Shield className="h-5 w-5 text-orange-400" />
+              <span className="text-sm font-semibold text-white">Conservation Status</span>
             </div>
-            <Badge 
-              className={`${conservationStatusColors[animal.conservationStatus]} backdrop-blur-sm border-2 font-bold text-xs md:text-sm px-2 md:px-3 py-1 transition-all duration-300 hover:scale-110`}
-            >
+            <div className={`inline-flex items-center rounded-full ${conservationStatusColors[animal.conservationStatus]} border-2 font-bold text-xs px-3 py-1 transition-all duration-300 hover:scale-110`}>
               <div className="flex items-center space-x-1">
                 {conservationStatusIcons[animal.conservationStatus]}
                 <span>{animal.conservationStatus}</span>
               </div>
-            </Badge>
-            <div className="flex items-center space-x-2">
-              <Droplets className="h-3 w-3 md:h-4 md:w-4 text-blue-300 animate-bounce" />
-              <span className="text-blue-200 text-xs md:text-sm">Arctic Region</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Waves className="h-3 w-3 md:h-4 md:w-4 text-cyan-300 animate-pulse" />
-              <span className="text-cyan-200 text-xs md:text-sm">Sea Ice Habitat</span>
             </div>
           </div>
+          <p className="text-xs text-orange-200 mt-2 leading-relaxed">
+            This species faces threats from climate change, habitat loss, and human activities. 
+            Conservation efforts are crucial for their survival.
+          </p>
         </div>
       </div>
 
@@ -330,80 +272,50 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
           <div className="space-y-2">
             {/* Mobile Habitat & Stats Row */}
             <div className="grid grid-cols-2 gap-2">
-              {/* Habitat */}
-              <div className="bg-blue-500/20 rounded-xl p-2 border border-blue-300/30">
-                <div className="flex items-center space-x-1 mb-1">
-                  <MapPin className="h-3 w-3 text-blue-300" />
-                  <h3 className="font-bold text-blue-200 text-xs">Habitat</h3>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-1">
+                  <MapPin className="h-3 w-3 text-blue-400" />
+                  <span className="text-xs font-semibold text-white">Habitat</span>
                 </div>
-                <p className="text-blue-100 text-xs leading-tight">{animal.habitat}</p>
+                <p className="text-xs text-blue-200 leading-tight">{animal.habitat}</p>
               </div>
-
-              {/* Stats */}
-              {animal.stats && showStats && (
-                <div className="bg-green-500/20 rounded-xl p-2 border border-green-300/30">
-                  <div className="flex items-center space-x-1 mb-1">
-                    <Zap className="h-3 w-3 text-green-300" />
-                    <h3 className="font-bold text-green-200 text-xs">Stats</h3>
-                  </div>
-                  <div className="space-y-0.5 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-green-100">Weight:</span>
-                      <span className="text-green-200 font-semibold">{animal.stats.weight}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-green-100">Speed:</span>
-                      <span className="text-green-200 font-semibold">{animal.stats.speed}</span>
-                    </div>
-                  </div>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-1">
+                  <Thermometer className="h-3 w-3 text-cyan-400" />
+                  <span className="text-xs font-semibold text-white">Stats</span>
                 </div>
-              )}
+                <div className="text-xs text-cyan-200 space-y-0.5">
+                  <div>W: {animal.stats.weight}</div>
+                  <div>H: {animal.stats.height}</div>
+                </div>
+              </div>
             </div>
-
             {/* Mobile Diet & Fun Facts Row */}
             <div className="grid grid-cols-2 gap-2">
-              {/* Diet */}
-              <div className="bg-yellow-500/20 rounded-xl p-2 border border-yellow-300/30">
-                <div className="flex items-center space-x-1 mb-1">
-                  <Utensils className="h-3 w-3 text-yellow-300" />
-                  <h3 className="font-bold text-yellow-200 text-xs">Diet</h3>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-1">
+                  <Utensils className="h-3 w-3 text-green-400" />
+                  <span className="text-xs font-semibold text-white">Diet</span>
                 </div>
-                <div className="flex flex-wrap gap-1">
+                <div className="text-xs text-green-200 space-y-0.5">
                   {animal.diet.slice(0, 2).map((food, index) => (
-                    <Badge 
-                      key={index}
-                      className="bg-yellow-500/30 text-yellow-200 border border-yellow-300/50 text-xs px-1 py-0.5"
-                    >
-                      {food}
-                    </Badge>
+                    <div key={index} className="flex items-center space-x-1">
+                      <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                      <span>{food}</span>
+                    </div>
                   ))}
                 </div>
               </div>
-
-              {/* Fun Facts */}
-              <div className="bg-purple-500/20 rounded-xl p-2 border border-purple-300/30">
-                <div className="flex items-center space-x-1 mb-1">
-                  <Info className="h-3 w-3 text-purple-300" />
-                  <h3 className="font-bold text-purple-200 text-xs">Fun Fact</h3>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-1">
+                  <Info className="h-3 w-3 text-yellow-400" />
+                  <span className="text-xs font-semibold text-white">Fun Fact</span>
                 </div>
-                <p className="text-purple-100 text-xs italic leading-tight">
-                  "{animal.funFacts[currentFactIndex]}"
+                <p className={`text-xs text-yellow-200 leading-tight transition-all duration-300 ${
+                  pulseEffect ? 'scale-105' : ''
+                }`}>
+                  {animal.funFacts[currentFactIndex]}
                 </p>
-                <div className="flex justify-center space-x-1 mt-1">
-                  {animal.funFacts.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentFactIndex(index)}
-                      className={`w-1 h-1 rounded-full transition-colors ${
-                        index === currentFactIndex 
-                          ? 'bg-purple-400' 
-                          : 'bg-purple-300/50'
-                      }`}
-                      aria-label={`Go to fact ${index + 1}`}
-                      title={`Fact ${index + 1}`}
-                    />
-                  ))}
-                </div>
               </div>
             </div>
           </div>
@@ -411,53 +323,18 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
       </div>
 
       {/* Enhanced Floating Particles Effect */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Snowflakes */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {[...Array(8)].map((_, i) => (
           <div
-            key={`snow-${i}`}
-            className="absolute animate-float"
+            key={`particle-${i}`}
+            className="absolute w-1 h-1 bg-cyan-300/40 rounded-full animate-float"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${20 + (i * 10)}%`,
+              top: `${30 + (i * 8)}%`,
               animationDelay: `${i * 0.3}s`,
-              animationDuration: `${4 + Math.random() * 3}s`
+              animationDuration: `${4 + Math.random() * 2}s`,
             }}
-          >
-            <Snowflake className="h-3 w-3 text-blue-300/40" />
-          </div>
-        ))}
-        
-        {/* Sparkles */}
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={`sparkle-${i}`}
-            className="absolute animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${i * 0.7}s`,
-              animationDuration: `${2 + Math.random() * 2}s`
-            }}
-          >
-            <Star className="h-2 w-2 text-yellow-300/60" />
-          </div>
-        ))}
-        
-        {/* Wind particles */}
-        {[...Array(3)].map((_, i) => (
-          <div
-            key={`wind-${i}`}
-            className="absolute animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${i * 1.2}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
-            }}
-          >
-            <Wind className="h-2 w-2 text-cyan-300/50" />
-          </div>
+          />
         ))}
       </div>
     </div>

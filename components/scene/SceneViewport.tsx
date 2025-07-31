@@ -102,12 +102,12 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
             rotation={[-Math.PI / 2, 0, 0]}
             receiveShadow
           >
-            <meshStandardMaterial
+          <meshStandardMaterial 
               color="#e0f2fe"
-              roughness={0.8}
-              metalness={0.1}
-            />
-          </Plane>
+            roughness={0.8}
+            metalness={0.1}
+          />
+        </Plane>
         )}
 
         {/* Polar Bear - Enhanced with CDN and fallback */}
@@ -124,33 +124,33 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
             <Box
               position={[0, 0.5, 0]}
               scale={[1, 1.5, 2]}
-              castShadow
-              receiveShadow
-            >
-              <meshStandardMaterial
+                  castShadow
+                  receiveShadow
+                >
+                  <meshStandardMaterial
                 color="#f8fafc"
                 roughness={0.9}
                 metalness={0.1}
-              />
-            </Box>
-            <Sphere
+                  />
+                </Box>
+                <Sphere
               position={[0, 1.5, 1]}
               scale={[0.8, 0.8, 0.8]}
-              castShadow
-              receiveShadow
-            >
-              <meshStandardMaterial
+                  castShadow
+                  receiveShadow
+                >
+                  <meshStandardMaterial
                 color="#f8fafc"
                 roughness={0.9}
                 metalness={0.1}
-              />
-            </Sphere>
+                  />
+                </Sphere>
           </>
         )}
 
         {/* Enhanced Orbital Camera Controls */}
-        <OrbitControls
-          makeDefault
+        <OrbitControls 
+          makeDefault 
           ref={orbitControlsRef}
           enableDamping
           dampingFactor={0.05}

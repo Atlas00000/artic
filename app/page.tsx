@@ -11,37 +11,50 @@ import {
   Snowflake, PawPrint, MapPin, Thermometer, Volume2, VolumeX,
   Moon, Sun, CloudSnow
 } from "lucide-react"
+import { useSoundSystem } from "@/hooks/useSoundSystem"
 
 export default function ArcticLife() {
-  const [soundEnabled, setSoundEnabled] = useState(true)
   const [theme, setTheme] = useState<'day' | 'night'>('day')
   const [sceneReady, setSceneReady] = useState(false)
   const [assetHealth, setAssetHealth] = useState<Record<string, boolean>>({})
+  
+  // Sound system integration
+  const { 
+    isSoundEnabled, 
+    toggleSound, 
+    playAmbientSound, 
+    playBearSound, 
+    stopAllSounds 
+  } = useSoundSystem()
 
-  // Preload assets on component mount
   useEffect(() => {
     const initializeAssets = async () => {
       try {
-        // Preload both CDN and legacy assets
         await Promise.allSettled([
           preloadAssets(),
           preloadCriticalAssets()
         ])
-
-        // Check asset health
         const health = await checkAssetHealth()
         setAssetHealth(health)
       } catch (error) {
         console.error('Asset initialization failed:', error)
       }
     }
-
     initializeAssets()
   }, [])
 
   const handleSceneReady = useCallback(() => {
     setSceneReady(true)
-  }, [])
+    // Start ambient sounds when scene is ready
+    if (isSoundEnabled) {
+      playAmbientSound()
+    }
+  }, [isSoundEnabled, playAmbientSound])
+
+  // Handle sound toggle
+  const handleSoundToggle = () => {
+    toggleSound()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-cyan-800 to-blue-700 arctic-gradient snow-pattern">
@@ -83,7 +96,7 @@ export default function ArcticLife() {
                 <p className="text-cyan-200 text-sm font-medium">Polar Wildlife Explorer</p>
               </div>
             </div>
-
+            
             <div className="hidden md:flex items-center space-x-6 ml-8">
               <div className="flex items-center space-x-2 bg-cyan-500/20 rounded-full px-4 py-2 border border-cyan-400/30">
                 <PawPrint className="h-4 w-4 text-cyan-300" />
@@ -95,7 +108,7 @@ export default function ArcticLife() {
               </div>
             </div>
           </div>
-
+          
           <div className="flex items-center space-x-3">
             {/* Asset Health Indicator */}
             {process.env.NODE_ENV === 'development' && (
@@ -119,17 +132,25 @@ export default function ArcticLife() {
               <span className="text-red-200 text-sm font-bold">-15°C</span>
             </div>
 
-            {/* Sound Toggle */}
+            {/* Enhanced Sound Toggle */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className="arctic-button text-white hover:bg-cyan-600/50 transition-all duration-300 hover:scale-110"
-              aria-label={soundEnabled ? "Disable Sound" : "Enable Sound"}
+              onClick={handleSoundToggle}
+              className={`arctic-button text-white transition-all duration-300 hover:scale-110 ${
+                isSoundEnabled 
+                  ? 'hover:bg-cyan-600/50' 
+                  : 'hover:bg-red-600/50'
+              }`}
+              aria-label={isSoundEnabled ? "Disable Sound" : "Enable Sound"}
             >
-              {soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+              {isSoundEnabled ? (
+                <Volume2 className="h-5 w-5 text-cyan-300" />
+              ) : (
+                <VolumeX className="h-5 w-5 text-red-300" />
+              )}
             </Button>
-
+            
             {/* Theme Toggle */}
             <Button
               variant="ghost"
@@ -140,7 +161,7 @@ export default function ArcticLife() {
             >
               {theme === 'day' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
             </Button>
-
+            
             {/* Weather Toggle */}
             <Button
               variant="ghost"
@@ -161,7 +182,7 @@ export default function ArcticLife() {
           onSceneReady={handleSceneReady}
         />
       </div>
-
+      
       {/* Floating Data Panel */}
       {sceneReady && <FloatingDataPanel animal={polarBearData} />}
     </div>
