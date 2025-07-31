@@ -17,6 +17,7 @@ export default function ArcticLife() {
   const [theme, setTheme] = useState<'day' | 'night'>('day')
   const [sceneReady, setSceneReady] = useState(false)
   const [assetHealth, setAssetHealth] = useState<Record<string, boolean>>({})
+  const [soundEnabled, setSoundEnabled] = useState(true)
   
   // Sound system integration
   const { 
@@ -46,14 +47,21 @@ export default function ArcticLife() {
   const handleSceneReady = useCallback(() => {
     setSceneReady(true)
     // Start ambient sounds when scene is ready
-    enable()
-    playAmbientSound()
-  }, [enable, playAmbientSound])
+    if (soundEnabled) {
+      enable()
+      playAmbientSound()
+    }
+  }, [soundEnabled, enable, playAmbientSound])
 
   // Handle sound toggle
   const handleSoundToggle = () => {
-    // For now, just enable sound - you can add a state to track enabled/disabled
-    enable()
+    if (soundEnabled) {
+      disable()
+      setSoundEnabled(false)
+    } else {
+      enable()
+      setSoundEnabled(true)
+    }
   }
 
   // Predefined snowflake positions to avoid hydration mismatch
@@ -154,13 +162,13 @@ export default function ArcticLife() {
                 size="icon"
               onClick={handleSoundToggle}
               className={`arctic-button text-white transition-all duration-300 hover:scale-110 ${
-                enable 
+                soundEnabled 
                   ? 'hover:bg-cyan-600/50' 
                   : 'hover:bg-red-600/50'
               }`}
-              aria-label={enable ? "Disable Sound" : "Enable Sound"}
+              aria-label={soundEnabled ? "Disable Sound" : "Enable Sound"}
               >
-              {enable ? (
+              {soundEnabled ? (
                 <Volume2 className="h-5 w-5 text-cyan-300" />
               ) : (
                 <VolumeX className="h-5 w-5 text-red-300" />
