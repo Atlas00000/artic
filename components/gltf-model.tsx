@@ -4,26 +4,24 @@ import React, { forwardRef, useState, useRef, useEffect } from "react"
 import { useGLTF } from "@react-three/drei"
 import { ThreeEvent } from "@react-three/fiber"
 import { useFrame } from "@react-three/fiber"
-import { Loading } from "@/components/ui/loading"
-
 
 interface GLTFModelProps {
   modelPath: string
-  position: [number, number, number]
-  rotation: [number, number, number]
-  scale: [number, number, number]
-  displayColor: string
+  position?: [number, number, number]
+  rotation?: [number, number, number]
+  scale?: [number, number, number]
+  displayColor?: string
   onPointerOver?: (event: ThreeEvent<PointerEvent>) => void
   onPointerOut?: (event: ThreeEvent<PointerEvent>) => void
-  onClick?: (event: ThreeEvent<PointerEvent>) => void
+  onClick?: (event: ThreeEvent<MouseEvent>) => void
 }
 
 export const GLTFModel = forwardRef<any, GLTFModelProps>(({
   modelPath,
-  position,
-  rotation,
-  scale,
-  displayColor,
+  position = [0, 0, 0],
+  rotation = [0, 0, 0],
+  scale = [1, 1, 1],
+  displayColor = "#ffffff",
   onPointerOver,
   onPointerOut,
   onClick,
@@ -38,12 +36,6 @@ export const GLTFModel = forwardRef<any, GLTFModelProps>(({
     setHasError(true)
     setIsLoading(false)
   })
-
-  React.useEffect(() => {
-    if (scene) {
-      setIsLoading(false)
-    }
-  }, [scene])
 
   // Apply shadow properties to all meshes and setup animations
   React.useEffect(() => {
@@ -67,6 +59,8 @@ export const GLTFModel = forwardRef<any, GLTFModelProps>(({
           action.play()
         })
       }
+
+      setIsLoading(false)
     }
   }, [scene, animations])
 
@@ -78,34 +72,25 @@ export const GLTFModel = forwardRef<any, GLTFModelProps>(({
   })
 
   if (hasError) {
-    return (
-      <mesh position={position} rotation={rotation} scale={scale}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#ff0000" />
-      </mesh>
-    )
+    return null // Don't render anything if there's an error
   }
 
   if (isLoading) {
-    return (
-      <mesh position={position} rotation={rotation} scale={scale}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#cccccc" />
-      </mesh>
-    )
+    return null // Don't render anything while loading
   }
 
   return (
-    <primitive
+    <group
       ref={ref}
-      object={scene}
       position={position}
       rotation={rotation}
       scale={scale}
       onPointerOver={onPointerOver}
       onPointerOut={onPointerOut}
       onClick={onClick}
-    />
+    >
+      <primitive object={scene} />
+    </group>
   )
 })
 

@@ -25,19 +25,28 @@ export const ASSETS = {
   }
 }
 
+// Asset cache for faster subsequent loads
+const assetCache = new Map<string, string>()
+
 // Enhanced asset path resolver with Cloudflare CDN
 export const getAssetPath = (assetKey: keyof typeof ASSETS): string => {
+  // Check cache first
+  if (assetCache.has(assetKey)) {
+    return assetCache.get(assetKey)!
+  }
+  
   // Use Cloudflare CDN if available
   if (assetKey in CDN_ASSETS) {
-    return getCDNAssetUrl(assetKey as keyof typeof CDN_ASSETS)
+    const url = getCDNAssetUrl(assetKey as keyof typeof CDN_ASSETS)
+    assetCache.set(assetKey, url)
+    return url
   }
   
   // Fallback to legacy logic
   const asset = ASSETS[assetKey]
-  if (process.env.NODE_ENV === 'development') {
-    return asset.localPath
-  }
-  return asset.cdnPath || asset.localPath
+  const url = process.env.NODE_ENV === 'development' ? asset.localPath : (asset.cdnPath || asset.localPath)
+  assetCache.set(assetKey, url)
+  return url
 }
 
 // Enhanced asset loader with retry and health checks
@@ -49,7 +58,7 @@ export const loadAssetWithHealthCheck = async (
     useCDN?: boolean
   }
 ): Promise<string> => {
-  const { maxRetries = 3, timeout = 10000, useCDN = true } = options || {}
+  const { maxRetries = 2, timeout = 5000, useCDN = true } = options || {} // Reduced timeout and retries
   
   // Use Cloudflare CDN if available and enabled
   if (useCDN && assetKey in CDN_ASSETS) {
@@ -60,7 +69,7 @@ export const loadAssetWithHealthCheck = async (
   const asset = ASSETS[assetKey]
   const url = getAssetPath(assetKey)
   
-  // Simple health check
+  // Simple health check with shorter timeout
   try {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), timeout)

@@ -20,26 +20,35 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
   const orbitControlsRef = useRef<any>(null)
   const [assetsLoaded, setAssetsLoaded] = useState(false)
   const [assetHealth, setAssetHealth] = useState<Record<string, boolean>>({})
+  const [loadingProgress, setLoadingProgress] = useState(0)
+  const [loadingMessage, setLoadingMessage] = useState("Initializing...")
 
-  // Preload and health check assets
+  // Progressive asset loading
   useEffect(() => {
     const preloadAssets = async () => {
       try {
-        // Health check all assets
-        const healthResults = await Promise.allSettled([
-          loadAssetWithHealthCheck('arcticTerrain'),
-          loadAssetWithHealthCheck('polarBear'),
-          loadAssetWithHealthCheck('snowEnvironment')
-        ])
-
-        const health: Record<string, boolean> = {}
-        healthResults.forEach((result, index) => {
-          const assetNames = ['arcticTerrain', 'polarBear', 'snowEnvironment']
-          health[assetNames[index]] = result.status === 'fulfilled'
-        })
-
-        setAssetHealth(health)
+        setLoadingMessage("Loading terrain...")
+        setLoadingProgress(20)
+        
+        // Load terrain first (most important for scene setup)
+        const terrainHealth = await loadAssetWithHealthCheck('arcticTerrain')
+        setAssetHealth(prev => ({ ...prev, arcticTerrain: true }))
+        setLoadingProgress(40)
+        
+        setLoadingMessage("Loading polar bear...")
+        // Load polar bear
+        const bearHealth = await loadAssetWithHealthCheck('polarBear')
+        setAssetHealth(prev => ({ ...prev, polarBear: true }))
+        setLoadingProgress(70)
+        
+        setLoadingMessage("Loading environment...")
+        // Load environment last (background)
+        const envHealth = await loadAssetWithHealthCheck('snowEnvironment')
+        setAssetHealth(prev => ({ ...prev, snowEnvironment: true }))
+        setLoadingProgress(100)
+        
         setAssetsLoaded(true)
+        setLoadingMessage("Ready!")
         
         if (onSceneReady) {
           onSceneReady()
@@ -47,6 +56,7 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
       } catch (error) {
         console.error('Asset preload failed:', error)
         setAssetsLoaded(true) // Continue anyway
+        setLoadingMessage("Ready (with fallbacks)")
       }
     }
 
@@ -73,7 +83,7 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
         <Environment
           files={getCDNAssetUrl('snowEnvironment')}
           background
-          resolution={1024}
+          resolution={512} // Reduced resolution for faster loading
         />
 
         {/* Arctic Terrain - Enhanced with CDN and fallback */}
@@ -160,8 +170,8 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
           position={[10, 10, 5]}
           intensity={1}
           castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
+          shadow-mapSize-width={1024} // Reduced shadow map size
+          shadow-mapSize-height={1024}
           shadow-camera-far={50}
           shadow-camera-left={-10}
           shadow-camera-right={10}
@@ -171,13 +181,21 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
         <pointLight position={[-10, -10, -10]} intensity={0.2} />
       </Canvas>
 
-      {/* Asset Loading Indicator */}
+      {/* Enhanced Asset Loading Indicator */}
       {!assetsLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-10">
-          <div className="text-white text-center">
+          <div className="text-white text-center max-w-md">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-            <p className="text-lg font-semibold">Loading Arctic Assets...</p>
-            <p className="text-sm text-cyan-200 mt-2">Optimizing for your location</p>
+            <p className="text-lg font-semibold mb-2">{loadingMessage}</p>
+            <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+              <div 
+                className="bg-cyan-400 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${loadingProgress}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-cyan-200">
+              {loadingProgress < 100 ? `Loading... ${loadingProgress}%` : 'Optimizing for your location'}
+            </p>
           </div>
         </div>
       )}
