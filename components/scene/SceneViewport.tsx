@@ -148,13 +148,15 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
           </>
         )}
 
-        {/* Enhanced Orbital Camera Controls */}
+        {/* Enhanced Orbital Camera Controls with Floor Collision Prevention */}
         <OrbitControls 
           makeDefault 
           ref={orbitControlsRef}
           enableDamping
           dampingFactor={0.05}
-          maxPolarAngle={Math.PI / 2}
+          // Prevent camera from going below the floor
+          maxPolarAngle={Math.PI / 2 - 0.1} // Slightly less than 90 degrees to prevent going below
+          minPolarAngle={0.1} // Slightly more than 0 to prevent going above
           minDistance={1}
           maxDistance={15}
           minAzimuthAngle={-Math.PI / 2}
@@ -162,6 +164,11 @@ export const SceneViewport: React.FC<SceneViewportProps> = ({
           enablePan={false}
           enableZoom={true}
           enableRotate={true}
+          // Additional constraints for better floor collision prevention
+          target={[0, 1, 0]} // Focus on the polar bear's position
+          // Prevent camera from getting too close to the ground
+          minZoom={0.5}
+          maxZoom={3}
         />
 
         {/* Enhanced Lighting */}

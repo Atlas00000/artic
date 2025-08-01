@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from 'geist/font/mono'
 import "./globals.css"
+import { NavigationWrapper } from "@/components/navigation-wrapper"
 
 export const metadata: Metadata = {
   title: 'Arctic Life - Polar Wildlife Explorer',
@@ -38,7 +39,10 @@ html {
 }
         `}</style>
       </head>
-      <body className="jungle-theme">{children}</body>
+      <body className="jungle-theme">
+        <NavigationWrapper />
+        {children}
+      </body>
     </html>
   )
 }
