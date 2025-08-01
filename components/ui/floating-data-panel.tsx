@@ -101,21 +101,8 @@ export const FloatingDataPanel: React.FC<FloatingDataPanelProps> = ({ animal }) 
 
   return (
     <div className="fixed inset-0 z-30 pointer-events-none">
-      {/* UI Toggle Button - Always visible */}
-      <div className="absolute top-4 right-4 z-40 pointer-events-auto">
-        <Button
-          onClick={toggleUI}
-          size="sm"
-          variant="ghost"
-          className="bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-110"
-          aria-label={showUI ? "Hide UI" : "Show UI"}
-        >
-          {showUI ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-        </Button>
-      </div>
-
-      {/* Top Panel - Animal Name & Status */}
-      <div className={`absolute top-24 md:top-16 left-1/2 transform -translate-x-1/2 transition-all duration-500 ${
+      {/* Top Panel - Animal Name & Status - Adjusted for mobile */}
+      <div className={`absolute top-32 md:top-16 left-1/2 transform -translate-x-1/2 transition-all duration-500 ${
         showUI ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
       }`}>
         <div 

@@ -78,11 +78,11 @@ export default function ArcticLife() {
           onSceneReady={handleSceneReady}
         />
         
-        {/* Floating Controls */}
-        <div className="absolute top-20 right-4 flex flex-col space-y-2">
-          {/* Asset Health Indicator */}
+        {/* Floating Controls - Responsive positioning */}
+        <div className="absolute top-20 md:top-20 right-4 md:right-4 flex flex-col space-y-2 z-40">
+          {/* Asset Health Indicator - Hidden on mobile to save space */}
           {process.env.NODE_ENV === 'development' && (
-            <div className="flex items-center space-x-2 bg-green-500/20 backdrop-blur-md rounded-full px-4 py-2 border border-green-400/30">
+            <div className="hidden md:flex items-center space-x-2 bg-green-500/20 backdrop-blur-md rounded-full px-4 py-2 border border-green-400/30">
               <div className="flex space-x-1">
                 {Object.entries(assetHealth).map(([asset, healthy]) => (
                   <div
@@ -96,8 +96,8 @@ export default function ArcticLife() {
             </div>
           )}
 
-          {/* Temperature Display */}
-          <div className="flex items-center space-x-2 bg-gradient-to-r from-red-500/20 to-orange-500/20 backdrop-blur-md rounded-full px-4 py-2 border border-red-400/30">
+          {/* Temperature Display - Hidden on mobile to save space */}
+          <div className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-red-500/20 to-orange-500/20 backdrop-blur-md rounded-full px-4 py-2 border border-red-400/30">
             <Thermometer className="h-4 w-4 text-red-300 animate-pulse" />
             <span className="text-red-200 text-sm font-bold">-15°C</span>
           </div>
