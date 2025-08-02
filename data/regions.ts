@@ -1,5 +1,5 @@
 import { Mountain, TreePine, Waves, Snowflake, Globe } from "lucide-react"
-import type { Region } from "@/components/ui/global-navigation"
+import type { Region } from "@/types/navigation"
 
 export const regions: Region[] = [
   {
