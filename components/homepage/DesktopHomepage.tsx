@@ -85,6 +85,19 @@ export function DesktopHomepage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-700 nature-view-gradient overflow-hidden">
+      {/* Background Map Image */}
+      <div className="fixed inset-0 pointer-events-none opacity-20">
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+             style={{
+               backgroundImage: 'url("/assets/homepage.png")',
+               backgroundSize: 'cover',
+               backgroundPosition: 'center',
+               filter: 'brightness(0.8) contrast(1.2)'
+             }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/60 via-teal-800/60 to-cyan-700/60" />
+      </div>
+
       {/* Enhanced Animated Background */}
       <div className="fixed inset-0 pointer-events-none">
         {/* Floating Particles */}

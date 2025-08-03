@@ -126,6 +126,19 @@ export function MobileHomepage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-700 pt-16 overflow-hidden">
+      {/* Background Map Image */}
+      <div className="fixed inset-0 pointer-events-none opacity-15">
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+             style={{
+               backgroundImage: 'url("/assets/homepage.png")',
+               backgroundSize: 'cover',
+               backgroundPosition: 'center',
+               filter: 'brightness(0.7) contrast(1.3)'
+             }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/70 via-teal-800/70 to-cyan-700/70" />
+      </div>
+
       {/* Enhanced Animated Background */}
       <div className="fixed inset-0 pointer-events-none">
         {/* Floating Particles */}
